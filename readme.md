@@ -1,1 +1,1 @@
-Demo can be found at http://lukasolson.com/other/radial_clock.
+Demo can be found at http://lukasolson.com/radial_clock.

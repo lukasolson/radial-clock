@@ -1,6 +1,9 @@
-window.onload = function () {
+$(document).ready(function() {
 	var canvas = document.getElementById("canvas"),
 		context = canvas.getContext("2d");
+	
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 
 	context.lineCap = "round";
 	context.lineWidth = 20;
@@ -8,7 +11,7 @@ window.onload = function () {
 	context.rotate(-Math.PI / 2); // Start the circle at 0:00 instead of 3:00
 
 	setInterval(function () {
-		context.clearRect(-250, -250, 500, 500);
+		context.clearRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
 
 		var date = new Date(),
 			msecs = date.getMilliseconds(),
@@ -36,4 +39,4 @@ window.onload = function () {
 		context.arc(0, 0, 25, 0, (2 * Math.PI) * msecs / 1000);
 		context.stroke();
 	}, 1000 / 48); // 48fps baby!
-};
+});
