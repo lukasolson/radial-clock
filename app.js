@@ -1,34 +1,35 @@
 (function () {
-	const canvas = document.getElementById("canvas");
-	const context = canvas.getContext("2d");
+	const arcs = document.querySelectorAll('.arc');
 
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+	const distanceBetweenArcs = Math.floor(Math.min(window.innerWidth, window.innerHeight) / (arcs.length * 2 + 1));
+	const centerX = Math.floor(window.innerWidth / 2);
+	const centerY = Math.floor(window.innerHeight / 2);
 
-	context.lineCap = "round";
-	context.lineWidth = Math.min(canvas.width, canvas.height) / 9;
-	context.translate(canvas.width / 2, canvas.height / 2); // Center the origin
-	context.rotate(-Math.PI / 2); // Start the circle at 0:00 instead of 3:00
-
-	window.requestAnimationFrame(function draw() {
-		context.clearRect(-canvas.height / 2, -canvas.width / 2, canvas.height, canvas.width); // Invert x/y because of the rotation
-
-		const now = new Date();
-		getArcLengths(now).forEach((value, i, list) => {
-			context.strokeStyle = `hsl(${i / list.length * 360}, 90%, 70%)`;
-			context.beginPath();
-			context.arc(0, 0, context.lineWidth * (i + 1), 0, (2 * Math.PI) * value);
-			context.stroke();
-		});
-
-		window.requestAnimationFrame(draw);
+	arcs.forEach((arc, i) => {
+		arc.setAttribute('stroke', `hsl(${360 / arcs.length * i}, 90%, 70%)`);
+		arc.setAttribute('stroke-width', `${distanceBetweenArcs}`);
 	});
 
-	function getArcLengths(date) {
-		const msecs = date.getMilliseconds() / 1000;
-		const secs = (date.getSeconds() + msecs) / 60;
-		const mins = (date.getMinutes() + secs) / 60;
-		const hours = (date.getHours() + mins) / 24;
-		return [msecs, secs, mins, hours];
-	}
+	window.requestAnimationFrame(function draw() {
+		const arcRatios = getArcRatios(new Date());
+		arcs.forEach((arc, i) => {
+			const radius = distanceBetweenArcs * (i + 1);
+			const angle = 2 * Math.PI * arcRatios[i];
+			const x1 = centerX;
+			const y1 = centerY - radius;
+			const x2 = centerX + Math.sin(angle) * radius - x1;
+			const y2 = centerY - Math.cos(angle) * radius - y1;
+			const largeArc = angle <= Math.PI ? 0 : 1;
+			arc.setAttribute('d', `m ${x1} ${y1} a ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`);
+		});
+		window.requestAnimationFrame(draw);
+	});
 })();
+
+function getArcRatios(date) {
+	const msecs = date.getMilliseconds() / 1000;
+	const secs = (date.getSeconds() + msecs) / 60;
+	const mins = (date.getMinutes() + secs) / 60;
+	const hours = (date.getHours() + mins) / 24;
+	return [msecs, secs, mins, hours];
+}
